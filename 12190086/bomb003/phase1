@@ -102,8 +102,8 @@ rdx            0x0                 0
 rsi            0x4023b0            4203440
 rdi            0x4023e4            4203492
 
-                                            //we wil get %eax value 0 which will means it will jump pass the explode_bomb.
-                                           so the solution is "Border relations with Canada have never been better."
+                                            //we wil get %eax value 0 which  means it will jump pass the explode_bomb.
+                                           so the solution is in string from ("Border relations with Canada have never been better.")
 
 
   
