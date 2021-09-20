@@ -1,1 +1,135 @@
+(gdb) b phase_3 // break point(it will stop the code execution like if we enter incorrect answer it won't explode the bomb).
+Breakpoint 1 at 0x400f15
+(gdb) r 
+Starting program: /home/lab2-34/Desktop/Bomb_Lab/bomb003/bomb 
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+Border relations with Canada have never been better.
+Phase 1 defused. How about the next one?
+0 1 1 2 3 5
+That's number 2.  Keep going!
+1 890 // user input
 
+Breakpoint 1, 0x0000000000400f15 in phase_3 ()
+(gdb) disas
+Dump of assembler code for function phase_3:
+=> 0x0000000000400f15 <+0>:	sub    $0x18,%rsp
+   0x0000000000400f19 <+4>:	mov    %fs:0x28,%rax
+   0x0000000000400f22 <+13>:	mov    %rax,0x8(%rsp)
+   0x0000000000400f27 <+18>:	xor    %eax,%eax
+   0x0000000000400f29 <+20>:	lea    0x4(%rsp),%rcx
+   0x0000000000400f2e <+25>:	mov    %rsp,%rdx
+   0x0000000000400f31 <+28>:	mov    $0x4025af,%esi
+   0x0000000000400f36 <+33>:	callq  0x400bb0 <__isoc99_sscanf@plt>
+   0x0000000000400f3b <+38>:	cmp    $0x1,%eax
+   0x0000000000400f3e <+41>:	jg     0x400f45 <phase_3+48>
+   0x0000000000400f40 <+43>:	callq  0x40142a <explode_bomb>
+   0x0000000000400f45 <+48>:	cmpl   $0x7,(%rsp)
+
+(gdb) x/s 0x4025af  // checking the user input.
+0x4025af:   "%d %d" // we know that total user input is two
+(gdb) u * 0x0000000000400f3b
+0x0000000000400f3b in phase_3 ()
+(gdb) disas
+Dump of assembler code for function phase_3:
+   0x0000000000400f15 <+0>:   sub    $0x18,%rsp
+   0x0000000000400f19 <+4>:   mov    %fs:0x28,%rax
+   0x0000000000400f22 <+13>:  mov    %rax,0x8(%rsp)
+   0x0000000000400f27 <+18>:  xor    %eax,%eax
+   0x0000000000400f29 <+20>:  lea    0x4(%rsp),%rcx
+   0x0000000000400f2e <+25>:  mov    %rsp,%rdx
+   0x0000000000400f31 <+28>:  mov    $0x4025af,%esi
+   0x0000000000400f36 <+33>:  callq  0x400bb0 <__isoc99_sscanf@plt>
+=> 0x0000000000400f3b <+38>:  cmp    $0x1,%eax             //if user input is less than 2 bomb will explode  
+                                                           // if it is greater than 2 it will move to line 48
+   0x0000000000400f3e <+41>:  jg     0x400f45 <phase_3+48>
+   0x0000000000400f40 <+43>:  callq  0x40142a <explode_bomb>
+   0x0000000000400f45 <+48>:  cmpl   $0x7,(%rsp)
+   0x0000000000400f49 <+52>:  ja     0x400f86 <phase_3+113>
+   0x0000000000400f4b <+54>:  mov    (%rsp),%eax
+   0x0000000000400f4e <+57>:  jmpq   *0x402420(,%rax,8)
+
+   End of assembler dump.
+(gdb) i r
+rax            0x2                 2  // (user input)rax in 64-bits is equal to eax in 32-bits
+rbx            0x4021e0            4202976
+rcx            0x0                 0
+rdx            0x7fffffffde64      140737488346724
+rsi            0x0                 0
+rdi            0x7fffffffd810      140737488345104
+rbp            0x0                 0x0
+0x0000000000400f3b <+38>:  cmp    $0x1,%eax
+   0x0000000000400f3e <+41>:  jg     0x400f45 <phase_3+48>
+   0x0000000000400f40 <+43>:  callq  0x40142a <explode_bomb>
+=> 0x0000000000400f45 <+48>:  cmpl   $0x7,(%rsp)             // first user input should not be greater than 7
+   0x0000000000400f49 <+52>:  ja     0x400f86 <phase_3+113>  //if it is greater than 7 it jump to line 113 where bomb 
+                                                               // will explode
+   0x0000000000400f4b <+54>:  mov    (%rsp),%eax
+   0x0000000000400f4e <+57>:  jmpq   *0x402420(,%rax,8)
+   0x0000000000400f55 <+64>:  mov    $0xc6,%eax
+   0x0000000000400f5a <+69>:  jmp    0x400f97 <phase_3+130>
+   0x0000000000400f5c <+71>:  mov    $0x31e,%eax
+   0x0000000000400f61 <+76>:  jmp    0x400f97 <phase_3+130>
+   0x0000000000400f63 <+78>:  mov    $0x299,%eax
+   0x0000000000400f68 <+83>:  jmp    0x400f97 <phase_3+130>
+   0x0000000000400f6a <+85>:  mov    $0x3a,%eax
+   0x0000000000400f6f <+90>:  jmp    0x400f97 <phase_3+130>
+   0x0000000000400f71 <+92>:  mov    $0x270,%eax
+   0x0000000000400f76 <+97>:  jmp    0x400f97 <phase_3+130>
+   0x0000000000400f78 <+99>:  mov    $0x10b,%eax
+   0x0000000000400f7d <+104>: jmp    0x400f97 <phase_3+130>
+   0x0000000000400f7f <+106>: mov    $0x80,%eax
+   0x0000000000400f84 <+111>: jmp    0x400f97 <phase_3+130>
+   0x0000000000400f86 <+113>: callq  0x40142a <explode_bomb>
+(gdb) x/d 0x7fffffffde60 //checking the value of rsp
+0x7fffffffde60:   1 //here is the value of rsp. Initially is our first input value.
+
+0x0000000000400f76 <+97>:  jmp    0x400f97 <phase_3+130>
+   0x0000000000400f78 <+99>:  mov    $0x10b,%eax
+   0x0000000000400f7d <+104>: jmp    0x400f97 <phase_3+130>
+   0x0000000000400f7f <+106>: mov    $0x80,%eax
+   0x0000000000400f84 <+111>: jmp    0x400f97 <phase_3+130>
+   0x0000000000400f86 <+113>: callq  0x40142a <explode_bomb>
+   0x0000000000400f8b <+118>: mov    $0x0,%eax
+   0x0000000000400f90 <+123>: jmp    0x400f97 <phase_3+130>
+   0x0000000000400f92 <+125>: mov    $0x3f,%eax
+=> 0x0000000000400f97 <+130>: cmp    0x4(%rsp),%eax   // compare the values.
+   0x0000000000400f9b <+134>: je     0x400fa2 <phase_3+141> // if the values are equal it will jump to line 141 where 
+                                                            //it perform operation further more. In our case the values are not equal.
+   0x0000000000400f9d <+136>: callq  0x40142a <explode_bomb>
+--Type <RET> for more, q to quit, c to continue without paging--
+   0x0000000000400fa2 <+141>: mov    0x8(%rsp),%rax
+   0x0000000000400fa7 <+146>: xor    %fs:0x28,%rax
+   0x0000000000400fb0 <+155>: je     0x400fb7 <phase_3+162>
+   0x0000000000400fb2 <+157>: callq  0x400b00 <__stack_chk_fail@plt>
+   0x0000000000400fb7 <+162>: add    $0x18,%rsp
+   0x0000000000400fbb <+166>: retq   
+End of assembler dump.
+(gdb) i r
+rax            0xc6                198 // value of eax. 
+                                       //since the 0x4(%rsp),%eax values should be equal, the value of eax is 198 which //provides gist that actual nuber of second user input is 198.
+rbx            0x4021e0            4202976
+rcx            0x0                 0
+rdx            0x7fffffffde64      140737488346724
+rsi            0x0                 0
+rdi            0x7fffffffd810      140737488345104
+rbp            0x0                 0x0
+(gdb) x/d 0x7fffffffde64 //value of 0x4(%rsp) where we have to add 4 bits to the hexadecimal of rsp.
+                           //since we checking the value of decimal we should use x/d
+0x7fffffffde64:   122
+
+(gdb) r
+The program being debugged has been started already.
+Start it from the beginning? (y or n) y
+Starting program: /home/lab2-34/Desktop/Bomb_Lab/bomb003/bomb 
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+Border relations with Canada have never been better.
+Phase 1 defused. How about the next one?
+0 1 1 2 3 5
+That's number 2.  Keep going!
+1 198
+Halfway there!
+
+
+//So, the two inputs are 1 198.
