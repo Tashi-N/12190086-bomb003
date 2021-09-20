@@ -62,8 +62,8 @@ rsp            0x7fffffffde90      0x7fffffffde90
 r8             0x6037a0            6305696
 
                                 //so the string is moved to %esi and it is pass to <stings_not_equal>.
-                                  since i had given string which is not eqaul to the actual sting i will get 1 as a value of %eas so we will 
-                                  call a bomb(bomb explade).
+                                  since i had given string which is not equal to the actual sting i will get 1 as a value of %eas so we will 
+                                  call a bomb(bomb explode).
 
 (gdb) disas
 Dump of assembler code for function phase_1:
