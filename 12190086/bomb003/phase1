@@ -1,1 +1,109 @@
 
+0000000000400e8d <phase_1>:
+user@user-OptiPlex-3040:~/Desktop/12190086/bomb003$ gdb bomb                // debugger (run the program)
+GNU gdb (Ubuntu 9.2-0ubuntu1~20.04) 9.2
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+Type "show copying" and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+Type "show configuration" for configuration details.
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Find the GDB manual and other documentation resources online at:
+    <http://www.gnu.org/software/gdb/documentation/>.
+
+For help, type "help".
+Type "apropos word" to search for commands related to "word"...
+Reading symbols from bomb...
+(gdb) b phase_1                                   // break point(it will stop the code execution like if we enter incorrect answer it won't explode the bomb).
+Breakpoint 1 at 0x400e8d
+(gdb) r                                            // to run the or execute the code.
+Starting program: /home/user/Desktop/12190086/bomb003/bomb 
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+hello                                             // user input.it can be any user input.
+
+Breakpoint 1, 0x0000000000400e8d in phase_1 ()
+(gdb) disas
+Dump of assembler code for function phase_1:
+=> 0x0000000000400e8d <+0>: sub    $0x8,%rsp                     //building stack frame with 8 more bytes
+   0x0000000000400e91 <+4>: mov    $0x4023b0,%esi                //actual string is stored.(what is being moved?)
+   0x0000000000400e96 <+9>: callq  0x40132b <strings_not_equal> //will compare input string with answer
+   0x0000000000400e9b <+14>:  test   %eax,%eax
+   0x0000000000400e9d <+16>:  je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:  callq  0x40142a <explode_bomb>
+   0x0000000000400ea4 <+23>:  add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:  retq   
+End of assembler dump.
+(gdb) ni                                                 // next instruction
+0x0000000000400e91 in phase_1 ()
+(gdb) disas                                            //dissambler code
+Dump of assembler code for function phase_1:
+   0x0000000000400e8d <+0>: sub    $0x8,%rsp
+   0x0000000000400e91 <+4>: mov    $0x4023b0,%esi
+   0x0000000000400e96 <+9>: callq  0x40132b <strings_not_equal>
+=> 0x0000000000400e9b <+14>:  test   %eax,%eax
+   0x0000000000400e9d <+16>:  je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:  callq  0x40142a <explode_bomb>
+   0x0000000000400ea4 <+23>:  add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:  retq   
+End of assembler dump.
+(gdb) i r                                        // instruction register(control unit that holds the instruction currently being executed or decoded)
+rax            0x1                 1 //eax(32 bite)=rax(64bite)=1
+rbx            0x4021e0            4202976
+rcx            0xb                 11
+rdx            0x1                 1
+rsi            0x4023b0            4203440
+rdi            0x4023e4            4203492
+rbp            0x0                 0x0
+rsp            0x7fffffffde90      0x7fffffffde90
+r8             0x6037a0            6305696
+
+                                //so the string is moved to %esi and it is pass to <stings_not_equal>.
+                                  since i had given string which is not eqaul to the actual sting i will get 1 as a value of %eas so we will 
+                                  call a bomb(bomb explade).
+
+(gdb) disas
+Dump of assembler code for function phase_1:
+   0x0000000000400e8d <+0>: sub    $0x8,%rsp
+=> 0x0000000000400e91 <+4>: mov    $0x4023b0,%esi
+   0x0000000000400e96 <+9>: callq  0x40132b <strings_not_equal>
+   0x0000000000400e9b <+14>:  test   %eax,%eax
+   0x0000000000400e9d <+16>:  je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:  callq  0x40142a <explode_bomb>
+   0x0000000000400ea4 <+23>:  add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:  retq   
+End of assembler dump.
+                                             //Lets examine what is being moved from address 0x4024bc. We know it has to be a string of some sort so we
+                                             use '/s'
+(gdb) x/s0x4023b0                           // we can get the actual string from here.
+0x4023b0: "Border relations with Canada have never been better."
+(gdb) 
+
+                                          //if we try the string found in dissambler code.
+(gdb) disas
+Dump of assembler code for function phase_1:
+   0x0000000000400e8d <+0>: sub    $0x8,%rsp
+   0x0000000000400e91 <+4>: mov    $0x4023b0,%esi
+   0x0000000000400e96 <+9>: callq  0x40132b <strings_not_equal>
+=> 0x0000000000400e9b <+14>:  test   %eax,%eax
+   0x0000000000400e9d <+16>:  je     0x400ea4 <phase_1+23>
+   0x0000000000400e9f <+18>:  callq  0x40142a <explode_bomb>
+   0x0000000000400ea4 <+23>:  add    $0x8,%rsp
+   0x0000000000400ea8 <+27>:  retq   
+End of assembler dump.
+(gdb) i r
+rax            0x0                 0         // eax(32 bite)=rax(64bite)value is 0
+rbx            0x4021e0            4202976
+rcx            0x34                52
+rdx            0x0                 0
+rsi            0x4023b0            4203440
+rdi            0x4023e4            4203492
+
+                                            //we wil get %eax value 0 which will means it will jump pass the explode_bomb.
+                                           so the solution is "Border relations with Canada have never been better."
+
+
+  
