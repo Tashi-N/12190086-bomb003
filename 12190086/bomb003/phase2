@@ -1,1 +1,344 @@
 
+*******
+Phase 2
+*******
+
+#Using objdump -d bomb > bomb.s we are able to look at all the assembly code present 
+in bomb.c 
+
+#Following are the set of assembly code of <phase_2>
+
+Breakpoint 1, 0x0000000000400ea9 in phase_2 ()
+(gdb) disas
+Dump of assembler code for function phase_2:
+=> 0x0000000000400ea9 <+0>:	push   %rbp
+   0x0000000000400eaa <+1>:	push   %rbx
+   0x0000000000400eab <+2>:	sub    $0x28,%rsp
+   0x0000000000400eaf <+6>:	mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:	mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:	xor    %eax,%eax
+   0x0000000000400ebf <+22>:	mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:	call   0x40144c <read_six_numbers>
+   0x0000000000400ec7 <+30>:	cmpl   $0x0,(%rsp)
+   0x0000000000400ecb <+34>:	jne    0x400ed4 <phase_2+43>
+   0x0000000000400ecd <+36>:	cmpl   $0x1,0x4(%rsp)
+   0x0000000000400ed2 <+41>:	je     0x400ed9 <phase_2+48>
+   0x0000000000400ed4 <+43>:	call   0x40142a <explode_bomb>
+   0x0000000000400ed9 <+48>:	mov    %rsp,%rbx
+   0x0000000000400edc <+51>:	lea    0x10(%rsp),%rbp
+   0x0000000000400ee1 <+56>:	mov    0x4(%rbx),%eax
+   0x0000000000400ee4 <+59>:	add    (%rbx),%eax
+   0x0000000000400ee6 <+61>:	cmp    %eax,0x8(%rbx)
+   0x0000000000400ee9 <+64>:	je     0x400ef0 <phase_2+71>
+   0x0000000000400eeb <+66>:	call   0x40142a <explode_bomb>
+   0x0000000000400ef0 <+71>:	add    $0x4,%rbx
+   0x0000000000400ef4 <+75>:	cmp    %rbp,%rbx
+--Type <RET> for more, q to quit, c to continue without paging--
+   0x0000000000400ef7 <+78>:	jne    0x400ee1 <phase_2+56>
+   0x0000000000400ef9 <+80>:	mov    0x18(%rsp),%rax
+   0x0000000000400efe <+85>:	xor    %fs:0x28,%rax
+   0x0000000000400f07 <+94>:	je     0x400f0e <phase_2+101>
+   0x0000000000400f09 <+96>:	call   0x400b00 <__stack_chk_fail@plt>
+   0x0000000000400f0e <+101>:	add    $0x28,%rsp
+   0x0000000000400f12 <+105>:	pop    %rbx
+   0x0000000000400f13 <+106>:	pop    %rbp
+   0x0000000000400f14 <+107>:	ret    
+End of assembler dump.
+
+
+#Lets put in "1 2 3 4 5 6" as our test input and disas <read_six_numbers>: 
+
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+Phase 1 defused. How about the next one?
+1 2 3 4 5 6
+Breakpoint 1, 0x0000000000400ea9 in phase_2 ()
+(gdb)dissas
+
+#Basic command used : disas - Disassamble Code
+					 i r - information register 
+					 ni - next line
+					 u * <address> - move to given address line. (Note that once you have crossed the address you cannot move backward,if not bomb will explode)
+
+
+(gdb) disas read_six_numbers 
+Dump of assembler code for function read_six_numbers:
+   0x000000000040144c <+0>:	sub    $0x8,%rsp	//making a stack frame
+   0x0000000000401450 <+4>:	mov    %rsi,%rdx
+   0x0000000000401453 <+7>:	lea    0x4(%rsi),%rcx
+   0x0000000000401457 <+11>:	lea    0x14(%rsi),%rax
+   0x000000000040145b <+15>:	push   %rax
+   0x000000000040145c <+16>:	lea    0x10(%rsi),%rax
+   0x0000000000401460 <+20>:	push   %rax
+   0x0000000000401461 <+21>:	lea    0xc(%rsi),%r9
+   0x0000000000401465 <+25>:	lea    0x8(%rsi),%r8
+   0x0000000000401469 <+29>:	mov    $0x4025a3,%esi	//$0x4025a3 is being put into %esi which is compared to our input
+   0x000000000040146e <+34>:	mov    $0x0,%eax
+   0x0000000000401473 <+39>:	call   0x400bb0 <__isoc99_sscanf@plt>
+   0x0000000000401478 <+44>:	add    $0x10,%rsp
+   0x000000000040147c <+48>:	cmp    $0x5,%eax
+   0x000000000040147f <+51>:	jg     0x401486 <read_six_numbers+58>	//if %eax is greater than 5, then we pass explode bomb.
+   0x0000000000401481 <+53>:	call   0x40142a <explode_bomb>
+   0x0000000000401486 <+58>:	add    $0x8,%rsp
+   0x000000000040148a <+62>:	ret    
+End of assembler dump.
+(gdb) x/s 0x4025a3
+0x4025a3:	"%d %d %d %d %d %d"
+(gdb) 
+
+# From the above we can say that we have got total of 6 ditgits with sapace in between for phase 2 solution.
+
+
+Lets check what 0x402799 is:
+
+(gdb) x/s 0x402799
+0x402799:       "%d %d %d %d %d %d"
+(gdb) 
+
+# Above must be the format of our answer, which is 6 digits with spaces in between.
+
+Lets check at what the compare statement is comparing:
+(gdb) u * 0x0000000000400ec7
+0x0000000000400ec7 in phase_2 ()
+(gdb) disas
+Dump of assembler code for function phase_2:
+   0x0000000000400ea9 <+0>:	push   %rbp
+   0x0000000000400eaa <+1>:	push   %rbx
+   0x0000000000400eab <+2>:	sub    $0x28,%rsp
+   0x0000000000400eaf <+6>:	mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:	mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:	xor    %eax,%eax
+   0x0000000000400ebf <+22>:	mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:	call   0x40144c <read_six_numbers>
+=> 0x0000000000400ec7 <+30>:	cmpl   $0x0,(%rsp)
+   0x0000000000400ecb <+34>:	jne    0x400ed4 <phase_2+43>
+   0x0000000000400ecd <+36>:	cmpl   $0x1,0x4(%rsp)
+   0x0000000000400ed2 <+41>:	je     0x400ed9 <phase_2+48>
+   0x0000000000400ed4 <+43>:	call   0x40142a <explode_bomb>
+   0x0000000000400ed9 <+48>:	mov    %rsp,%rbx
+   0x0000000000400edc <+51>:	lea    0x10(%rsp),%rbp
+   0x0000000000400ee1 <+56>:	mov    0x4(%rbx),%eax
+   0x0000000000400ee4 <+59>:	add    (%rbx),%eax
+   ----
+   ----
+   ----
+   End of assembler dump.
+
+(gdb) i r
+rax            0x6                 6
+rbx            0x7fffffffdf78      140737488347000
+rcx            0x0                 0
+rdx            0x6                 6
+rsi            0x0                 0
+rdi            0x7fffffffd7d0      140737488345040
+rbp            0x0                 0x0
+rsp            0x7fffffffde40      0x7fffffffde40
+r8             0x1999999999999999  1844674407370955161
+r9             0x0                 0
+r10            0x7ffff7f55ac0      140737353439936
+r11            0x7ffff7f563c0      140737353442240
+r12            0x400c60            4197472
+r13            0x0                 0
+r14            0x0                 0
+r15            0x0                 0
+rip            0x400ec7            0x400ec7 <phase_2+30>
+eflags         0x202               [ IF ]
+cs             0x33                51
+ss             0x2b                43
+ds             0x0                 0
+es             0x0                 0
+fs             0x0                 0
+
+(gdb) x/d 0x7fffffffde40
+0x7fffffffde40:	1
+
+# Since the 0 and $rsp value(1) is not equal. As a result bomb explode. Therefore from this comparion we can colclude that our first number is 0 which does not lead to bomb explotion.
+
+
+(gdb) i r
+	rax            0x6                 6
+	rbx            0x7fffffffdf78      140737488347000
+	rcx            0x0                 0
+	rdx            0x5                 5
+	rsi            0x0                 0
+	rdi            0x7fffffffd7d0      140737488345040
+	rbp            0x0                 0x0
+	rsp            0x7fffffffde40      0x7fffffffde40
+	r8             0x1999999999999999  1844674407370955161
+	r9             0x0                 0
+	r10            0x7ffff7f55ac0      140737353439936
+	r11            0x7ffff7f563c0      140737353442240
+	----
+	----
+	----
+(gdb) x/d 0x7fffffffde40
+0x7fffffffde40:	0
+(gdb)
+ 
+#when setting our first value to 0 the result of $rsp is also 0. Hence proof that our first digit number is 0.Now process the next instruction(next comparion).
+Dump of assembler code for function phase_2:
+   0x0000000000400ea9 <+0>:	push   %rbp
+   0x0000000000400eaa <+1>:	push   %rbx
+   0x0000000000400eab <+2>:	sub    $0x28,%rsp
+   0x0000000000400eaf <+6>:	mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:	mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:	xor    %eax,%eax
+   0x0000000000400ebf <+22>:	mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:	call   0x40144c <read_six_numbers>
+   0x0000000000400ec7 <+30>:	cmpl   $0x0,(%rsp)
+   0x0000000000400ecb <+34>:	jne    0x400ed4 <phase_2+43>
+=> 0x0000000000400ecd <+36>:	cmpl   $0x1,0x4(%rsp)
+   0x0000000000400ed2 <+41>:	je     0x400ed9 <phase_2+48>
+   0x0000000000400ed4 <+43>:	call   0x40142a <explode_bomb>
+   0x0000000000400ed9 <+48>:	mov    %rsp,%rbx
+   0x0000000000400edc <+51>:	lea    0x10(%rsp),%rbp
+   0x0000000000400ee1 <+56>:	mov    0x4(%rbx),%eax
+   0x0000000000400ee4 <+59>:	add    (%rbx),%eax
+  -----
+  -----
+  -----
+   0x0000000000400f14 <+107>:	ret    
+End of assembler dump.
+#check the value of 0x4(%rsp)
+(gdb) i r
+rax            0x6                 6
+rbx            0x7fffffffdf78      140737488347000
+rcx            0x0                 0
+rdx            0x5                 5
+rsi            0x0                 0
+rdi            0x7fffffffd7d0      140737488345040
+rbp            0x0                 0x0
+rsp            0x7fffffffde40      0x7fffffffde40
+r8             0x1999999999999999  1844674407370955161
+r9             0x0                 0
+r10            0x7ffff7f55ac0      140737353439936
+r11            0x7ffff7f563c0      140737353442240
+r12            0x400c60            4197472
+r13            0x0                 0
+r14            0x0                 0
+r15            0x0                 0
+rip            0x400ecd            0x400ecd <phase_2+36>
+eflags         0x246               [ PF ZF IF ]
+cs             0x33                51
+ss             0x2b                43
+ds             0x0                 0
+es             0x0                 0
+fs             0x0                 0
+gs             0x0                 0
+(gdb) x/d 0x7fffffffde44
+0x7fffffffde44:	1
+
+#As the comparion of 1 and the value of 0x4(%rsp) is equal which does not lead to bomb explode.Hence we also know that our 2nd digit value is 1.
+ #proceed the next instruction(comparion)
+ (gdb) disas
+Dump of assembler code for function phase_2:
+   0x0000000000400ea9 <+0>:	push   %rbp
+   0x0000000000400eaa <+1>:	push   %rbx
+   0x0000000000400eab <+2>:	sub    $0x28,%rsp
+   0x0000000000400eaf <+6>:	mov    %fs:0x28,%rax
+   0x0000000000400eb8 <+15>:	mov    %rax,0x18(%rsp)
+   0x0000000000400ebd <+20>:	xor    %eax,%eax
+   0x0000000000400ebf <+22>:	mov    %rsp,%rsi
+   0x0000000000400ec2 <+25>:	call   0x40144c <read_six_numbers>
+   0x0000000000400ec7 <+30>:	cmpl   $0x0,(%rsp)
+   0x0000000000400ecb <+34>:	jne    0x400ed4 <phase_2+43>
+   0x0000000000400ecd <+36>:	cmpl   $0x1,0x4(%rsp)
+   0x0000000000400ed2 <+41>:	je     0x400ed9 <phase_2+48>
+   0x0000000000400ed4 <+43>:	call   0x40142a <explode_bomb>
+   0x0000000000400ed9 <+48>:	mov    %rsp,%rbx
+   0x0000000000400edc <+51>:	lea    0x10(%rsp),%rbp
+   0x0000000000400ee1 <+56>:	mov    0x4(%rbx),%eax
+=> 0x0000000000400ee4 <+59>:	add    (%rbx),%eax
+   0x0000000000400ee6 <+61>:	cmp    %eax,0x8(%rbx)
+   0x0000000000400ee9 <+64>:	je     0x400ef0 <phase_2+71>
+   0x0000000000400eeb <+66>:	call   0x40142a <explode_bomb>
+   0x0000000000400ef0 <+71>:	add    $0x4,%rbx
+   0x0000000000400ef4 <+75>:	cmp    %rbp,%rbx
+   0x0000000000400ef7 <+78>:	jne    0x400ee1 <phase_2+56>
+   0x0000000000400ef9 <+80>:	mov    0x18(%rsp),%rax
+   0x0000000000400efe <+85>:	xor    %fs:0x28,%rax
+   0x0000000000400f07 <+94>:	je     0x400f0e <phase_2+101>
+   0x0000000000400f09 <+96>:	call   0x400b00 <__stack_chk_fail@plt>
+   0x0000000000400f0e <+101>:	add    $0x28,%rsp
+   0x0000000000400f12 <+105>:	pop    %rbx
+   0x0000000000400f13 <+106>:	pop    %rbp
+   0x0000000000400f14 <+107>:	ret    
+End of assembler dump.
+
+(gdb) i r
+	rax            0x1                 1
+	rbx            0x7fffffffde40      140737488346688
+	rcx            0x0                 0
+	rdx            0x5                 5
+	rsi            0x0                 0
+	rdi            0x7fffffffd7d0      140737488345040
+	rbp            0x7fffffffde50      0x7fffffffde50
+	rsp            0x7fffffffde40      0x7fffffffde40
+	r8             0x1999999999999999  1844674407370955161
+	r9             0x0                 0
+	r10            0x7ffff7f55ac0      140737353439936
+	r11            0x7ffff7f563c0      140737353442240
+	r12            0x400c60            4197472
+	r13            0x0                 0
+	r14            0x0                 0
+	r15            0x0                 0
+	rip            0x400ee4            0x400ee4 <phase_2+59>
+	eflags         0x246               [ PF ZF IF ]
+	cs             0x33                51
+	ss             0x2b                43
+	ds             0x0                 0
+	es             0x0                 0
+	fs             0x0                 0
+	gs             0x0                 0
+(gdb) x/d 0x7fffffffde40
+0x7fffffffde40:	0
+(gdb) 
+# In addition the value of rbx=0 is added to the rax=1 which give the 0+1=1.
+
+(gdb) disas
+Dump of assembler code for function phase_2:
+   ------
+   -------
+   -------
+   0x0000000000400ec2 <+25>:	call   0x40144c <read_six_numbers>
+   0x0000000000400ec7 <+30>:	cmpl   $0x0,(%rsp)
+   0x0000000000400ecb <+34>:	jne    0x400ed4 <phase_2+43>
+   0x0000000000400ecd <+36>:	cmpl   $0x1,0x4(%rsp)
+   0x0000000000400ed2 <+41>:	je     0x400ed9 <phase_2+48>
+   0x0000000000400ed4 <+43>:	call   0x40142a <explode_bomb>
+   0x0000000000400ed9 <+48>:	mov    %rsp,%rbx
+   0x0000000000400edc <+51>:	lea    0x10(%rsp),%rbp
+   0x0000000000400ee1 <+56>:	mov    0x4(%rbx),%eax
+   0x0000000000400ee4 <+59>:	add    (%rbx),%eax
+=> 0x0000000000400ee6 <+61>:	cmp    %eax,0x8(%rbx)
+   0x0000000000400ee9 <+64>:	je     0x400ef0 <phase_2+71>
+   0x0000000000400eeb <+66>:	call   0x40142a <explode_bomb>
+   0x0000000000400ef0 <+71>:	add    $0x4,%rbx
+   0x0000000000400ef4 <+75>:	cmp    %rbp,%rbx
+  ------
+  -----
+  ------
+   0x0000000000400f14 <+107>:	ret    
+End of assembler dump.
+(gdb) i r
+	rax            0x1                 1
+	rbx            0x7fffffffde40      140737488346688
+	rcx            0x0                 0
+	rdx            0x5                 5
+	rsi            0x0                 0
+	rdi            0x7fffffffd7d0      140737488345040
+	rbp            0x7fffffffde50      0x7fffffffde50
+	rsp            0x7fffffffde40      0x7fffffffde40
+	r8             0x1999999999999999  1844674407370955161
+	r9             0x0                 0
+	r10            0x7ffff7f55ac0      140737353439936
+	------
+	------
+	------
+(gdb) x/d 0x7fffffffde48
+0x7fffffffde48:	2
+(gdb) 
+# As comparing [cmp %eax,0x8(%rbx)] eax=1 and the 0x8(%rbx)=2 which lead to bomb explode. Therefore we can conclude that our 3rd digit number is also 1.
+
+By looking the flow,the next digit number is the sum of the two preceeding numbers.i knew that the solution of the 6 digit number is 0 1 1 2 3 5.
+Hence proof that our six digit number is Fibonacci series.
