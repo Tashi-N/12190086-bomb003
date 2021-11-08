@@ -1,1 +1,44 @@
+Dump of assembler code for function phase_5:
 
+=> 0x000000000040106d <+0>:	sub    $0x18,%rsp
+   0x0000000000401071 <+4>:	mov    %fs:0x28,%rax
+   0x000000000040107a <+13>:	mov    %rax,0x8(%rsp)
+   0x000000000040107f <+18>:	xor    %eax,%eax
+   0x0000000000401081 <+20>:	lea    0x4(%rsp),%rcx
+   0x0000000000401086 <+25>:	mov    %rsp,%rdx
+   0x0000000000401089 <+28>:	mov    $0x4025af,%esi			//esi = "%d %d"
+   0x000000000040108e <+33>:	call   0x400bb0 <__isoc99_sscanf@plt>
+   0x0000000000401093 <+38>:	cmp    $0x1,%eax		//check if the input length is two
+   0x0000000000401096 <+41>:	jg     0x40109d <phase_5+48>
+   0x0000000000401098 <+43>:	call   0x40142a <explode_bomb>
+   0x000000000040109d <+48>:	mov    (%rsp),%eax	//move first user(%rsp) input to eax
+   0x00000000004010a0 <+51>:	and    $0xf,%eax
+   0x00000000004010a3 <+54>:	mov    %eax,(%rsp)
+   0x00000000004010a6 <+57>:	cmp    $0xf,%eax		//check if the first input is in the range 0 - 14
+   0x00000000004010a9 <+60>:	je     0x4010da <phase_5+109>
+   0x00000000004010ab <+62>:	mov    $0x0,%ecx
+   0x00000000004010b0 <+67>:	mov    $0x0,%edx
+   0x00000000004010b5 <+72>:	add    $0x1,%edx 	//increment the value in edx by 1
+   0x00000000004010b8 <+75>:	cltq   
+   0x00000000004010ba <+77>:	mov    0x402460(,%rax,4),%eax //move the element stored in array of address 0x402460+rax*4 to eax
+   0x00000000004010c1 <+84>:	add    %eax,%ecx		//summing up the element from the array
+   0x00000000004010c3 <+86>:	cmp    $0xf,%eax		//check if the value of eax is 15 which is one of the element in array, if equal terminate from the loop
+   0x00000000004010c6 <+89>:	jne    0x4010b5 <phase_5+72> //else iterate again
+   0x00000000004010c8 <+91>:	movl   $0xf,(%rsp)
+   0x00000000004010cf <+98>:	cmp    $0xf,%edx //check if the iteration has occured exectly 15 times
+   0x00000000004010d2 <+101>:	jne    0x4010da <phase_5+109> //else explode bomb
+   0x00000000004010d4 <+103>:	cmp    0x4(%rsp),%ecx 	//check if the second user input is equals to the sum of the element in the array in ecx (5 is not included)
+   0x00000000004010d8 <+107>:	je     0x4010df <phase_5+114>
+   0x00000000004010da <+109>:	call   0x40142a <explode_bomb>
+   0x00000000004010df <+114>:	mov    0x8(%rsp),%rax
+   0x00000000004010e4 <+119>:	xor    %fs:0x28,%rax
+   0x00000000004010ed <+128>:	je     0x4010f4 <phase_5+135>
+   0x00000000004010ef <+130>:	call   0x400b00 <__stack_chk_fail@plt>
+   0x00000000004010f4 <+135>:	add    $0x18,%rsp
+   0x00000000004010f8 <+139>:	ret
+
+End of assembler dump.
+
+The first input is the index of the array where the element in that index of array acts index to another element in the array and like this
+it will point to all the element in the array except the input that user have given in the loop until the pointed element is 15 at the same time while it is iteraing 
+it will sum all the pointed elements which should be equals to the second user input. So the solution is 5 115
